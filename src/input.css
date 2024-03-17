@@ -1,0 +1,17 @@
+/*@tailwind base;*/
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .pixelated {
+        image-rendering: pixelated;
+    }
+}
+
+
+#root {
+    min-height: 100vh;
+    overflow-y: auto;
+    background-color: rgb(5, 6, 8);
+    background-image: linear-gradient(rgb(21, 25, 33) 0%, rgba(255, 255, 255, 0) 10%);
+}
