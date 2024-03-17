@@ -71,7 +71,6 @@ function App() {
   }, [provider]);
   useEffect(() => {
     provider?.getAtomicalsBalance().then((atomicals) => {
-      console.log({ atomicals });
       setAtomicals(atomicals);
     });
   }, [provider, address]);
@@ -91,10 +90,13 @@ function App() {
             <div>Address: <br /><span className={'text-secondary'}>{address}</span></div>
             <div>Public Key: <br /><span className={'text-secondary'}>{publicKey}</span></div>
             <div>Network: <br /><span className={'text-secondary'}>{network}</span></div>
-            <div>Balance: <br /><span
-              className={'text-secondary'}>confirmed: {balance?.confirmed?.toLocaleString('en-US')} sats,
+            {
+              balance ?
+                <div>Balance: <br /><span
+                  className={'text-secondary'}>confirmed: {balance?.confirmed?.toLocaleString('en-US')} sats,
               unconfirmed: {balance?.unconfirmed?.toLocaleString('en-US')} sats,
-              total: {balance?.total?.toLocaleString('en-US')} sats</span></div>
+              total: {balance?.total?.toLocaleString('en-US')} sats</span></div> : null
+            }
             {
               atomicals ?
                 <>
@@ -102,7 +104,8 @@ function App() {
                     className={'text-secondary'}>arc20: {atomicals.atomicalFTs.length},
               nft: {atomicals.atomicalNFTs.length},
               ordinals: {atomicals.ordinalsUTXOs.length}</span></div>
-                  <ReactJson src={atomicals} theme="monokai" collapsed={true} name={'Atomicals Balance'}/>
+                  <ReactJson src={atomicals} theme="monokai" collapsed={true} name={'Atomicals Balance'}
+                             style={{ padding: '8px', borderRadius: '6px' }} />
                   <Divider dashed={true} className={'!my-0'} />
                   <SendBitcoin address={address} />
                   <Divider dashed={true} className={'!my-0'} />
@@ -114,7 +117,7 @@ function App() {
                   <Divider dashed={true} className={'!my-0'} />
                 </> : null
             }
-            <Button className={'w-full'} onClick={() => {
+            <Button className={'w-full text-red-500'} onClick={() => {
               setAddress(undefined);
             }}>Disconnect</Button>
           </> : <Button className={'w-full'} onClick={() => {
