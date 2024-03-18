@@ -70,7 +70,7 @@ function App() {
     });
   }, [provider]);
   useEffect(() => {
-    provider?.getAtomicalsBalance().then((atomicals) => {
+    provider?.getAssets().then((atomicals) => {
       setAtomicals(atomicals);
     });
   }, [provider, address]);
@@ -100,11 +100,11 @@ function App() {
             {
               atomicals ?
                 <>
-                  <div>Atomicals & Ordinals: <br /><span
+                  <div>Assets: <br /><span
                     className={'text-secondary'}>arc20: {atomicals.atomicalFTs.length},
-              nft: {atomicals.atomicalNFTs.length},
+              atomicals NFTs: {atomicals.atomicalNFTs.length},
               ordinals: {atomicals.ordinalsUTXOs.length}</span></div>
-                  <ReactJson src={atomicals} theme="monokai" collapsed={true} name={'Atomicals Balance'}
+                  <ReactJson src={atomicals} theme="monokai" collapsed={true} name={'Assets'}
                              style={{ padding: '8px', borderRadius: '6px' }} />
                   <Divider dashed={true} className={'!my-0'} />
                   <SendBitcoin address={address} />
