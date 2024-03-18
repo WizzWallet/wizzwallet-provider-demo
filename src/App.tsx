@@ -1,11 +1,12 @@
-import { App as AntdApp, Button, ConfigProvider, Divider, Input, InputNumber, Select, theme } from 'antd';
+import { App as AntdApp, Button, ConfigProvider, Divider, Input, InputNumber, Segmented, Select, theme } from 'antd';
 import Lottie from 'lottie-react';
 import Logo from './assets/logo.json';
 import 'antd/dist/reset.css';
 import React, { useEffect, useMemo, useState } from 'react';
-import { AtomicalWithUTXOs, IWalletProvider, WalletAssetBalance } from '@wizz-btc/provider';
+import { AtomicalWithUTXOs, IWalletProvider, SignMessageType, WalletAssetBalance } from '@wizz-btc/provider';
 import { buildTx, NetworkType, toPsbt } from '@wizz-btc/wallet';
 import ReactJson from 'react-json-view';
+import { FaGithub } from 'react-icons/fa6';
 
 
 function App() {
@@ -82,8 +83,13 @@ function App() {
       },
       algorithm: theme.darkAlgorithm,
     }}>
-      <AntdApp className={'max-w-xl mx-auto px-4 my-12 flex flex-col gap-4 font-mono break-words break-all text-xs'}>
-        <Lottie animationData={Logo} loop={true} className={'mx-auto w-1/3'} />
+      <AntdApp
+        className={'max-w-xl mx-auto px-4 mb-12 mt-4 flex flex-col gap-4 font-mono break-words break-all text-xs'}>
+        <div className={'flex items-center justify-center relative'}>
+          <Lottie animationData={Logo} loop={true} className={'w-40'} />
+          <a href="https://github.com/WizzWallet/wizzwallet-provider-demo" target={'_blank'} className={'absolute top-0 right-0 leading-none text-3xl'}
+             rel={'noreferrer'}><FaGithub /></a>
+        </div>
         {
           address ? <>
             <div>Version: <span className={'text-secondary'}>{version}</span></div>
@@ -117,6 +123,8 @@ function App() {
                   <Divider dashed={true} className={'!my-0'} />
                 </> : null
             }
+            <SignMessage />
+            <Divider dashed={true} className={'!my-0'} />
             <Button className={'w-full text-red-500'} onClick={() => {
               setAddress(undefined);
             }}>Disconnect</Button>
@@ -137,6 +145,29 @@ function App() {
       </AntdApp>
     </ConfigProvider>
   );
+}
+
+
+function SignMessage() {
+  const [msg, setMsg] = useState<string>('Hello World!');
+  const [type, setType] = useState<SignMessageType>();
+  const [result, setResult] = useState<React.ReactNode>();
+  return <>
+    <Input.TextArea placeholder={'message'} value={msg} onChange={(e) => setMsg(e.target.value)} allowClear />
+    <Segmented block={true} options={['ecdsa', 'bip322-simple']} value={type} onChange={(e) => {
+      setType(e as SignMessageType);
+    }} />
+    {
+      !!result && <div>{result}</div>
+    }
+    <Button className={'w-full'} disabled={!msg} onClick={() => {
+      window.wizz.signMessage(msg, type).then((e) => {
+        setResult(e);
+      }).catch((e) => {
+        setResult(e.message || 'Unknown error');
+      });
+    }}>Sign Message</Button>
+  </>;
 }
 
 function SignPSBT({ address, balance, publicKey }: {
