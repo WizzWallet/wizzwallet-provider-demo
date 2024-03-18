@@ -87,7 +87,8 @@ function App() {
         className={'max-w-xl mx-auto px-4 mb-12 mt-4 flex flex-col gap-4 font-mono break-words break-all text-xs'}>
         <div className={'flex items-center justify-center relative'}>
           <Lottie animationData={Logo} loop={true} className={'w-40'} />
-          <a href="https://github.com/WizzWallet/wizzwallet-provider-demo" target={'_blank'} className={'absolute top-0 right-0 leading-none text-3xl'}
+          <a href="https://github.com/WizzWallet/wizzwallet-provider-demo" target={'_blank'}
+             className={'absolute top-0 right-0 leading-none text-3xl'}
              rel={'noreferrer'}><FaGithub /></a>
         </div>
         {
@@ -96,6 +97,11 @@ function App() {
             <div>Address: <br /><span className={'text-secondary'}>{address}</span></div>
             <div>Public Key: <br /><span className={'text-secondary'}>{publicKey}</span></div>
             <div>Network: <br /><span className={'text-secondary'}>{network}</span></div>
+            <Segmented block={true} options={['livenet', 'testnet']} value={network} onChange={(e) => {
+              provider?.switchNetwork(e as NetworkType).then((v) => {
+                console.log(v);
+              });
+            }} />
             {
               balance ?
                 <div>Balance: <br /><span

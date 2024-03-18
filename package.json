@@ -11,7 +11,7 @@
     "update:wizz-btc": "pnpm update @wizz-btc/provider @wizz-btc/wallet"
   },
   "dependencies": {
-    "@wizz-btc/provider": "^0.2.13",
+    "@wizz-btc/provider": "^0.2.14",
     "@wizz-btc/wallet": "^0.2.12",
     "antd": "^5.15.2",
     "lottie-react": "^2.4.0",
