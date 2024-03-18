@@ -93,9 +93,9 @@ function App() {
             {
               balance ?
                 <div>Balance: <br /><span
-                  className={'text-secondary'}>confirmed: {balance?.confirmed?.toLocaleString('en-US')} sats,
-              unconfirmed: {balance?.unconfirmed?.toLocaleString('en-US')} sats,
-              total: {balance?.total?.toLocaleString('en-US')} sats</span></div> : null
+                  className={'text-secondary'}>confirmed: {balance.confirmed.toLocaleString('en-US')} sats,
+              unconfirmed: {balance.unconfirmed.toLocaleString('en-US')} sats,
+              total: {balance.total.toLocaleString('en-US')} sats</span></div> : null
             }
             {
               atomicals ?
