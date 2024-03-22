@@ -61,19 +61,25 @@ function App() {
     });
   }, [provider, address]);
   useEffect(() => {
-    provider?.getBalance().then((balance) => {
-      setBalance(balance);
-    });
+    if (provider?.getBalance) {
+      provider?.getBalance().then((balance) => {
+        setBalance(balance);
+      });
+    }
   }, [provider, address]);
   useEffect(() => {
-    provider?.getVersion().then((version) => {
-      setVersion(version);
-    });
+    if (provider?.getVersion) {
+      provider?.getVersion().then((version) => {
+        setVersion(version);
+      });
+    }
   }, [provider]);
   useEffect(() => {
-    provider?.getAssets().then((atomicals) => {
-      setAtomicals(atomicals);
-    });
+    if (provider?.getAssets) {
+      provider?.getAssets().then((atomicals) => {
+        setAtomicals(atomicals);
+      });
+    }
   }, [provider, address]);
   return (
     <ConfigProvider theme={{
