@@ -284,7 +284,7 @@ export default function Split({ address, provider, publicKey }: SplitProps) {
   }, [address, addressInfo.network, addressInfo.output, amount, feeRate, publicKey, pureUTXOs, selectedFT, toAddress]);
   const isP2TR = addressInfo.addressType === AddressType.P2TR;
   return <>
-    <div className={'text-soft-white text-xs mt-4'}>
+    <div className={'text-soft-white text-xs'}>
       Splitting FT
     </div>
     {
@@ -313,7 +313,7 @@ export default function Split({ address, provider, publicKey }: SplitProps) {
     <Input value={toAddress} allowClear placeholder={'Address'} onChange={(e) => setToAddress(e.target.value)} />
     {
       errMsg ?
-        <Alert banner={true} className={'rounded mt-4'} type={'error'} message={errMsg} /> : null
+        <Alert banner={true} className={'rounded'} type={'error'} message={errMsg} /> : null
     }
     {result ?
       <div>Commit Fee: {result.commitFee.toLocaleString('en-US')} sats, Reveal
