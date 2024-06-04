@@ -7,6 +7,7 @@ import { AtomicalWithUTXOs, IWalletProvider, SignMessageType, WalletAssetBalance
 import { buildTx, NetworkType, toPsbt } from '@wizz-btc/wallet';
 import ReactJson from 'react-json-view';
 import { FaGithub } from 'react-icons/fa6';
+import Split from './Split.tsx';
 
 
 function App() {
@@ -78,6 +79,8 @@ function App() {
     if (provider?.getAssets) {
       provider?.getAssets().then((atomicals) => {
         setAtomicals(atomicals);
+      }).catch((e) => {
+        console.log(e);
       });
     }
   }, [provider, address]);
@@ -136,6 +139,10 @@ function App() {
                 </> : null
             }
             <SignMessage />
+            {
+              address && publicKey ?
+                <Split address={address} provider={provider!} publicKey={publicKey} /> : null
+            }
             <Divider dashed={true} className={'!my-0'} />
             <Button className={'w-full text-red-500'} onClick={() => {
               setAddress(undefined);

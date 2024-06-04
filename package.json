@@ -8,18 +8,24 @@
     "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "update:wizz-btc": "pnpm update @wizz-btc/provider @wizz-btc/wallet"
+    "update:wizz-btc": "pnpm update @wizz-btc/provider@alpha @wizz-btc/wallet@alpha"
   },
   "dependencies": {
-    "@wizz-btc/provider": "^0.2.14",
-    "@wizz-btc/wallet": "^0.2.12",
+    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@wizz-btc/provider": "^0.2.18",
+    "@wizz-btc/wallet": "^0.2.23",
     "antd": "^5.15.2",
+    "bitcoinjs-lib": "^6.1.5",
+    "borc": "^3.0.0",
+    "bs58check": "^3.0.1",
+    "ecpair": "^2.1.0",
     "lottie-react": "^2.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3"
   },
   "devDependencies": {
+    "@types/node": "^20.14.1",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
