@@ -6,7 +6,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Network, Payment, payments, script, Transaction } from 'bitcoinjs-lib';
 import bs58check from 'bs58check';
 import * as cbor from 'borc';
-import { toXOnly } from '@wizz-btc/wallet';
 
 bitcoin.initEccLib(ecc);
 
@@ -191,6 +190,7 @@ export default function Split({ address, provider, publicKey }: SplitProps) {
     }
     console.log(payload);
     const buffer = new AtomicalsPayload(payload).cbor();
+    const toXOnly = (pubKey: Buffer) => pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
     const selfXOnly = toXOnly(Buffer.from(publicKey, 'hex'));
     const { scriptP2TR, hashLockP2TR } = prepareCommitRevealConfig('z', selfXOnly, buffer, addressInfo.network);
     const hashLockP2TROutputLen = hashLockP2TR.redeem!.output!.length;
