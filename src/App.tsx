@@ -293,7 +293,7 @@ function SendARC20({ address, fts }: { address: string; fts: AtomicalWithUTXOs[]
             onChange={(e) => setTicker(e)} />
     <Input placeholder={'receive address'} value={addr} onChange={(e) => setAddr(e.target.value)} allowClear />
     <div className={'flex gap-2'}>
-      <InputNumber className={'flex-1'} placeholder={'amount'} value={amount} min={546}
+      <InputNumber className={'flex-1'} placeholder={'amount'} value={amount} min={1}
                    onChange={(e) => setAmount(e as any)} />
       <InputNumber className={'flex-1'} placeholder={'fee rate'} value={feeRate} min={1}
                    onChange={(e) => setFeeRate(e as any)} />

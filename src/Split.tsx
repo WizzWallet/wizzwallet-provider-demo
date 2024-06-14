@@ -188,7 +188,6 @@ export default function Split({ address, provider, publicKey }: SplitProps) {
       });
       payload[selectedFT.atomical_id][1] = remainderFTValue;
     }
-    console.log(payload);
     const buffer = new AtomicalsPayload(payload).cbor();
     const toXOnly = (pubKey: Buffer) => pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
     const selfXOnly = toXOnly(Buffer.from(publicKey, 'hex'));
