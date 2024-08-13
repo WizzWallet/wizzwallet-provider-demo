@@ -3,7 +3,13 @@ import Lottie from 'lottie-react';
 import Logo from './assets/logo.json';
 import 'antd/dist/reset.css';
 import React, { useEffect, useMemo, useState } from 'react';
-import { AtomicalWithUTXOs, IWalletProvider, SignMessageType, WalletAssetBalance } from '@wizz-btc/provider';
+import {
+  AtomicalWithUTXOs,
+  InscriptionItem,
+  IWalletProvider,
+  SignMessageType,
+  WalletAssetBalance,
+} from '@wizz-btc/provider';
 import { buildTx, NetworkType, toPsbt } from '@wizz-btc/wallet';
 import ReactJson from 'react-json-view';
 import { FaGithub } from 'react-icons/fa6';
@@ -21,7 +27,7 @@ function App() {
     unconfirmed: number,
     total: number,
   }>();
-  const [atomicals, setAtomicals] = useState<WalletAssetBalance>();
+  const [assets, setAssets] = useState<WalletAssetBalance>();
   const [version, setVersion] = useState<string>();
   useEffect(() => {
     const bindEvents = (provider: IWalletProvider) => {
@@ -63,11 +69,12 @@ function App() {
   }, [provider, address]);
   useEffect(() => {
     if (provider?.getBalance) {
+      setBalance(undefined);
       provider?.getBalance().then((balance) => {
         setBalance(balance);
       });
     }
-  }, [provider, address]);
+  }, [provider, address, network]);
   useEffect(() => {
     if (provider?.getVersion) {
       provider?.getVersion().then((version) => {
@@ -77,13 +84,14 @@ function App() {
   }, [provider]);
   useEffect(() => {
     if (provider?.getAssets) {
+      setAssets(undefined);
       provider?.getAssets().then((atomicals) => {
-        setAtomicals(atomicals);
+        setAssets(atomicals);
       }).catch((e) => {
         console.log(e);
       });
     }
-  }, [provider, address]);
+  }, [provider, address, network]);
   return (
     <ConfigProvider theme={{
       token: {
@@ -106,11 +114,12 @@ function App() {
             <div>Address: <br /><span className={'text-secondary'}>{address}</span></div>
             <div>Public Key: <br /><span className={'text-secondary'}>{publicKey}</span></div>
             <div>Network: <br /><span className={'text-secondary'}>{network}</span></div>
-            <Segmented block={true} options={['livenet', 'testnet']} value={network} onChange={(e) => {
-              provider?.switchNetwork(e as NetworkType).then((v) => {
-                console.log(v);
-              });
-            }} />
+            <Segmented block={true} options={['livenet', 'testnet', 'testnet4', 'signet']} value={network}
+                       onChange={(e) => {
+                         provider?.switchNetwork(e as NetworkType).then((v) => {
+                           console.log(v);
+                         });
+                       }} />
             {
               balance ?
                 <div>Balance: <br /><span
@@ -119,25 +128,29 @@ function App() {
               total: {balance.total.toLocaleString('en-US')} sats</span></div> : null
             }
             {
-              atomicals ?
+              assets ?
                 <>
                   <div>Assets: <br /><span
-                    className={'text-secondary'}>arc20: {atomicals.atomicalFTs.length},
-              atomicals NFTs: {atomicals.atomicalNFTs.length},
-              ordinals: {atomicals.ordinalsUTXOs.length}</span></div>
-                  <ReactJson src={atomicals} theme="monokai" collapsed={true} name={'Assets'}
+                    className={'text-secondary'}>arc20: {assets.atomicalFTs.length},
+              atomicals NFTs: {assets.atomicalNFTs.length},
+              inscriptions: {assets.inscriptionsUTXOs.length}</span></div>
+                  <ReactJson src={assets} theme="monokai" collapsed={true} name={'Assets'}
                              style={{ padding: '8px', borderRadius: '6px' }} />
                   <Divider dashed={true} className={'!my-0'} />
                   <SendBitcoin address={address} />
                   <Divider dashed={true} className={'!my-0'} />
-                  <SendAtomicals address={address} nfts={atomicals.atomicalNFTs || []} />
+                  <SendAtomicals address={address} nfts={assets.atomicalNFTs || []} />
                   <Divider dashed={true} className={'!my-0'} />
-                  <SendARC20 address={address} fts={atomicals.atomicalFTs || []} />
+                  <SendARC20 address={address} fts={assets.atomicalFTs || []} />
                   <Divider dashed={true} className={'!my-0'} />
-                  <SignPSBT address={address} balance={atomicals} publicKey={publicKey!} />
+                  <SendInscription address={address} inscriptions={assets.inscriptions || {}} />
+                  <Divider dashed={true} className={'!my-0'} />
+                  <SignPSBT address={address} balance={assets} publicKey={publicKey!} />
                   <Divider dashed={true} className={'!my-0'} />
                 </> : null
             }
+            <InscribeTransfer />
+            <Divider dashed={true} className={'!my-0'} />
             <SignMessage />
             {
               address && publicKey ?
@@ -166,6 +179,73 @@ function App() {
   );
 }
 
+function SendInscription({ address, inscriptions }: {
+  address: string;
+  inscriptions: Record<string, InscriptionItem>
+}) {
+  const [addr, setAddr] = useState<string>(address);
+  useEffect(() => {
+    setAddr(address);
+  }, [address]);
+  const [inscriptionId, setInscriptionId] = useState<string>();
+  const [feeRate, setFeeRate] = useState<number>(10);
+  const [result, setResult] = useState<React.ReactNode>();
+  return <>
+    <Input.TextArea autoSize placeholder={'receive address'} value={addr} onChange={(e) => setAddr(e.target.value)}
+                    allowClear />
+    <div className={'flex items-center gap-2'}>
+      <Select className={'flex-1'} placeholder={'Select to send'} value={inscriptionId}
+              options={Object.values(inscriptions).map((e) => {
+                return {
+                  label: `# ${e.inscriptionNumber.toLocaleString('en-US')}`,
+                  value: e.inscriptionId,
+                };
+              })}
+              onChange={(e) => setInscriptionId(e)} />
+      <InputNumber className={'flex-1'} placeholder={'fee rate'} value={feeRate} min={1}
+                   onChange={(e) => setFeeRate(e as any)} />
+    </div>
+    {
+      !!result && <div>{result}</div>
+    }
+    <Button className={'w-full'} disabled={!inscriptionId || !addr} onClick={() => {
+      let options: { feeRate: number } | undefined;
+      if (feeRate) {
+        options = { feeRate };
+      }
+      console.log(addr, inscriptionId, options);
+      window.wizz.sendInscription(addr!, inscriptionId!, options).then((e) => {
+        setResult(e);
+      }).catch((e) => {
+        setResult(e.message || 'Unknown error');
+      });
+    }}>Send Inscription</Button>
+  </>;
+}
+
+function InscribeTransfer() {
+  const [ticker, setTicker] = useState<string>();
+  const [amount, setAmount] = useState<string>();
+  const [result, setResult] = useState<React.ReactNode>();
+  return <>
+    <div className={'flex items-center gap-2'}>
+      <Input placeholder={'ticker'} className={'flex-1'} value={ticker} allowClear
+             onChange={(e) => setTicker(e.target.value)} />
+      <InputNumber placeholder={'amount'} className={'flex-1'} value={amount} stringMode={true}
+                   onChange={(e) => setAmount(e as any)} />
+    </div>
+    {
+      !!result && <div>{result}</div>
+    }
+    <Button className={'w-full'} disabled={!ticker || !amount} onClick={() => {
+      window.wizz.inscribeTransfer(ticker!, amount!).then((e) => {
+        setResult(JSON.stringify(e));
+      }).catch((e) => {
+        setResult(e.message || 'Unknown error');
+      });
+    }}>Inscribe Transfer</Button>
+  </>;
+}
 
 function SignMessage() {
   const [msg, setMsg] = useState<string>('Hello World!');
