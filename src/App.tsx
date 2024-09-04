@@ -29,6 +29,14 @@ function App() {
   }>();
   const [assets, setAssets] = useState<WalletAssetBalance>();
   const [version, setVersion] = useState<string>();
+  const [isBiHelixAddress, setIsBiHelixAddress] = useState(false);
+  useEffect(() => {
+    if (address && provider) {
+      provider.isBiHelixAddress(address).then((e) => {
+        setIsBiHelixAddress(e);
+      });
+    }
+  }, [address, provider]);
   useEffect(() => {
     const bindEvents = (provider: IWalletProvider) => {
       provider.on('accountsChanged', (accounts: string[]) => {
@@ -112,6 +120,7 @@ function App() {
           address ? <>
             <div>Version: <span className={'text-secondary'}>{version}</span></div>
             <div>Address: <br /><span className={'text-secondary'}>{address}</span></div>
+            <div>BiHelix Address: <br /><span className={'text-secondary'}>{isBiHelixAddress?.toString()}</span></div>
             <div>Public Key: <br /><span className={'text-secondary'}>{publicKey}</span></div>
             <div>Network: <br /><span className={'text-secondary'}>{network}</span></div>
             <Segmented block={true} options={['livenet', 'testnet', 'testnet4', 'signet']} value={network}
@@ -250,22 +259,44 @@ function InscribeTransfer() {
 function SignMessage() {
   const [msg, setMsg] = useState<string>('Hello World!');
   const [type, setType] = useState<SignMessageType>();
-  const [result, setResult] = useState<React.ReactNode>();
+  const [signature, setSignature] = useState<string>();
+  const { message } = AntdApp.useApp();
+  useEffect(() => {
+    setSignature(undefined);
+  }, [type, msg]);
   return <>
     <Input.TextArea placeholder={'message'} value={msg} onChange={(e) => setMsg(e.target.value)} allowClear />
     <Segmented block={true} options={['ecdsa', 'bip322-simple']} value={type} onChange={(e) => {
       setType(e as SignMessageType);
     }} />
-    {
-      !!result && <div>{result}</div>
-    }
+    <Input.TextArea placeholder={'signature'} value={signature} onChange={(e) => setSignature(e.target.value)}
+                    allowClear />
     <Button className={'w-full'} disabled={!msg} onClick={() => {
       window.wizz.signMessage(msg, type).then((e) => {
-        setResult(e);
+        setSignature(e);
       }).catch((e) => {
-        setResult(e.message || 'Unknown error');
+        setSignature(e.message || 'Unknown error');
       });
     }}>Sign Message</Button>
+    {
+      signature ?
+        <Button className={'w-full'} onClick={async () => {
+          try {
+            if (type === 'bip322-simple') {
+              const [address] = await window.wizz.getAccounts();
+              const ok = await window.wizz.verifyMessageOfBIP322Simple(address, msg, signature);
+              message[ok ? 'success' : 'error'](ok ? 'Verified' : 'Not verified');
+            } else {
+              const pubkey = await window.wizz.getPublicKey();
+              const ok = await window.wizz.verifyMessage(pubkey, msg, signature);
+              message[ok ? 'success' : 'error'](ok ? 'Verified' : 'Not verified');
+            }
+          } catch (e) {
+            console.error(e);
+            message.error(e.message || 'Unknown error');
+          }
+        }}>Verify Message</Button> : null
+    }
   </>;
 }
 

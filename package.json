@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@wizz-btc/provider": "^0.2.26",
-    "@wizz-btc/wallet": "^0.2.31",
+    "@wizz-btc/provider": "^0.2.36",
+    "@wizz-btc/wallet": "^0.2.32",
     "antd": "^5.15.2",
     "bitcoinjs-lib": "^6.1.5",
     "borc": "^3.0.0",
