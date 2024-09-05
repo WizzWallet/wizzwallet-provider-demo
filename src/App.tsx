@@ -32,7 +32,7 @@ function App() {
   const [isBiHelixAddress, setIsBiHelixAddress] = useState(false);
   useEffect(() => {
     if (address && provider) {
-      provider.isBiHelixAddress(address).then((e) => {
+      provider.isBiHelixAddress().then((e) => {
         setIsBiHelixAddress(e);
       });
     }
